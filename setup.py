@@ -3,11 +3,13 @@ from distutils.core import setup
 setup(
   name = 'annolab-sdk',
   version='0.0.1',
-  packages = ['annolab-sdk'],
+  packages = ['annolab_sdk'],
   author='AnnoLab',
   maintainer='Luke Simkins; Grant DeLozier',
   author_email='luke@annolab.ai',
+  url='https://github.com/lsimkins/annolab-sdk',
   license='Apache',
+  description='Official SDK for the AnnoLab Platform',
   classifiers=[
     'Development Status :: 3 - Alpha',
     'Intended Audience :: Developers',
