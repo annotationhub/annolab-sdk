@@ -1,4 +1,6 @@
-from typing import Optional, Dict
+import io
+from os import path
+from typing import Optional, Dict, Union
 
 from annolab_sdk import endpoints
 from annolab_sdk.api_helper import ApiHelper
@@ -56,15 +58,17 @@ class Project:
   def __init__(
     self,
     name: str,
-    id: Optional[int],
+    id: int,
     group_name: str,
     group_id: int,
+    default_dir: str,
     api_helper: ApiHelper
   ):
     self.name = name
     self.id = id
     self.group_name = group_name
     self.group_id = group_id
+    self.default_dir = default_dir
     self.api = api_helper
 
 
@@ -73,12 +77,12 @@ class Project:
     return f'{self.group_name}/{self.name}'
 
 
-  def find_source(self, name: str, directory: str):
+  def find_source(self, name: str, directory: str = None):
     res = self.api.get_request(
       endpoints.Source.get_source_by_path(
         group_name=self.api.default_group['groupName'],
         project_name=self.name,
-        directory_name=directory,
+        directory_name=directory or self.default_dir,
         source_ref_name=name
       )
     )
@@ -89,6 +93,7 @@ class Project:
   def create_text_source(self, name: str, text: str, directory: str = None):
     body = {
       'projectIdentifier': self.id or self.name,
+      'groupName': self.group_name,
       'sourceName': name,
       'text': text
     }
@@ -104,7 +109,73 @@ class Project:
     return res.json()
 
 
+  def create_pdf_source(self, filepath: str, name: str = None, directory: str = None):
+    name = name or path.basename(filepath)
+
+    init_res = self.api.post_request(
+      endpoints.Source.post_initialize_pdf(),
+      {
+        'projectIdentifier': self.id or self.name,
+        'groupName': self.group_name,
+        'directoryIdentifier': directory or self.default_dir,
+        'sourceName': name,
+      })
+
+    upload_url = init_res.json()['uploadUrl']
+
+    with open(filepath, 'r+b') as pdf_file:
+      self.api.put_request(upload_url, data = pdf_file, headers={'Content-Type': 'application/pdf'})
+
+    create_res = self.api.post_request(
+      endpoints.Source.post_create_pdf(),
+      {
+        'projectIdentifier': self.id or self.name,
+        'groupName': self.group_name,
+        'directoryIdentifier': directory or self.default_dir,
+        'sourceIdentifier': name,
+      })
+
+    return create_res.json()
+
+
+
   @staticmethod
   def create_from_response_json(resp_json: Dict, api_helper: ApiHelper):
-    return Project(resp_json['name'], resp_json['id'], resp_json['groupName'], resp_json['groupId'], api_helper=api_helper)
+    return Project(
+      resp_json['name'],
+      resp_json['id'],
+      resp_json['groupName'],
+      resp_json['groupId'],
+      resp_json['defaultDirectory'],
+      api_helper=api_helper)
 
+
+from enum import Enum
+
+class SourceType(Enum):
+  Text = 'text'
+  Pdf = 'pdf'
+
+
+class Source:
+
+  def __init__(
+    self,
+    id: int,
+    name: str,
+    type: SourceType,
+    text: str,
+    url: str,
+    api_helper: ApiHelper
+  ):
+    self.id = id
+    self.name = name
+    self.type = type
+    self.text = text
+    self.url = url
+    self.api = api_helper
+
+
+  @staticmethod
+  def create_from_response_json(resp_json: Dict, api_helper: ApiHelper):
+    return Source(resp_json['name'], resp_json['id'], resp_json['groupName'], resp_json['groupId'], api_helper=api_helper)

@@ -92,7 +92,7 @@ class Source:
 
   @staticmethod
   def post_initialize_pdf():
-    return 'v1/source/init-text'
+    return 'v1/source/init-pdf'
 
 
   @staticmethod

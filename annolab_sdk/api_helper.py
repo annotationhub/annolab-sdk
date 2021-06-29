@@ -68,6 +68,18 @@ class ApiHelper(object):
     return resp
 
 
+  def put_request(self, path: str, data: Any = None, headers = None):
+    resp = requests.put(
+      parse.urljoin(self.api_url, path),
+      headers=headers,
+      data=data
+    )
+
+    self.__handle_non_2xx_response(resp)
+
+    return resp
+
+
   def __handle_non_2xx_response(self, resp: Response):
     if (resp.status_code >= 300):
       try:
