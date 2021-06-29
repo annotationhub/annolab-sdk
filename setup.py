@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
   name = 'annolab-sdk',
-  version='0.0.1',
+  version='0.0.3',
   packages = ['annolab_sdk'],
   author='AnnoLab',
   maintainer='Luke Simkins; Grant DeLozier',

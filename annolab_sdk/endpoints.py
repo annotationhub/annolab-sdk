@@ -76,6 +76,16 @@ class AnnotationLayer:
 class Source:
 
   @staticmethod
+  def get_source_by_id(source_ref_id: int):
+    return f'v1/source/{source_ref_id}'
+
+
+  @staticmethod
+  def get_source_by_path(group_name: str, project_name: str, directory_name: str, source_ref_name: str):
+    return f'v1/source/{group_name}/{project_name}/{directory_name}/{source_ref_name}'
+
+
+  @staticmethod
   def post_create_text():
     return 'v1/source/create-text'
 
@@ -91,13 +101,13 @@ class Source:
 
 
   @staticmethod
-  def post_annotations(groupName: str, projectName: str, sourceRefName: str):
-    return f'v1/source/{groupName}/{projectName}/{sourceRefName}/source/annotations'
+  def post_annotations(group_name: str, project_name: str, directory_name: str, source_ref_name: str):
+    return f'v1/source/{group_name}/{project_name}/{directory_name}/{source_ref_name}/annotations'
 
 
   @staticmethod
-  def delete_using_name(groupName: str, projectName: str, sourceRefName: str):
-    return f'v1/source/{groupName}/{projectName}/{sourceRefName}'
+  def delete_using_name(group_name: str, project_name: str, directory_name: str, source_ref_name: str):
+    return f'v1/source/{group_name}/{project_name}/{directory_name}/{source_ref_name}'
 
 
   @staticmethod

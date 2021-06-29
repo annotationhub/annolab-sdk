@@ -5,6 +5,8 @@ import logging
 from requests.models import Response
 
 import annolab_sdk
+from annolab_sdk import endpoints
+from annolab_sdk.util.cached_property import cached_property
 
 class ApiHelper(object):
 
@@ -21,6 +23,25 @@ class ApiHelper(object):
   def __auth_header(self, key: str = None):
     key = key or self.api_key
     return { 'Authorization': f'Api-Key {key}' }
+
+
+  @cached_property
+  def api_key_info(self):
+    return self.get_request(endpoints.ApiKey.get_api_key_info()).json()
+
+
+  '''
+    Returns the default group to use for the api key.
+    The default group is the group representing the single user.
+  '''
+  @cached_property
+  def default_group(self):
+    default_group = None
+    for group in self.api_key_info['groups']:
+      if (group['isSingleUser'] is True):
+        default_group = group
+
+    return default_group
 
 
   def get_request(self, path: str, body: Dict[str, Any] = None) -> Response:

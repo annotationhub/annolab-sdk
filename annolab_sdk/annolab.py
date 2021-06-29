@@ -13,24 +13,18 @@ class AnnoLab:
   ):
     self.api = ApiHelper(api_key=api_key, api_url=api_url)
 
-
-  @cached_property
+  @property
   def api_key_info(self):
-    return self.api.get_request(endpoints.ApiKey.get_api_key_info()).json()
+    return self.api.api_key_info
 
 
   '''
     Returns the default group to use for the api key.
     The default group is the group representing the single user.
   '''
-  @cached_property
+  @property
   def default_group(self):
-    default_group = None
-    for group in self.api_key_info['groups']:
-      if (group['isSingleUser'] is True):
-        default_group = group
-
-    return default_group
+    return self.api.default_group
 
 
   def find_project(self, name: str, group_name: str = None):
@@ -77,6 +71,19 @@ class Project:
   @property
   def project_path(self):
     return f'{self.group_name}/{self.name}'
+
+
+  def find_source(self, name: str, directory: str):
+    res = self.api.get_request(
+      endpoints.Source.get_source_by_path(
+        group_name=self.api.default_group['groupName'],
+        project_name=self.name,
+        directory_name=directory,
+        source_ref_name=name
+      )
+    )
+
+    return res.json()
 
 
   def create_text_source(self, name: str, text: str, directory: str = None):
