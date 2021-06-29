@@ -1,10 +1,10 @@
 #!/usr/bin/env python
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
   name = 'annolab-sdk',
-  version='0.0.3',
-  packages = ['annolab_sdk'],
+  version='0.0.6',
+  packages = find_packages(),
   author='AnnoLab',
   maintainer='Luke Simkins; Grant DeLozier',
   author_email='luke@annolab.ai',

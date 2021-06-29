@@ -5,7 +5,6 @@ import requests
 
 from annolab_sdk import endpoints
 from annolab_sdk.api_helper import ApiHelper
-from annolab_sdk.util.cached_property import cached_property
 
 class AnnoLab:
 
