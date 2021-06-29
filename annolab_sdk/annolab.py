@@ -1,6 +1,7 @@
 import io
 from os import path
-from typing import Optional, Dict, Union
+from typing import Dict, Union
+import requests
 
 from annolab_sdk import endpoints
 from annolab_sdk.api_helper import ApiHelper
@@ -20,16 +21,20 @@ class AnnoLab:
     return self.api.api_key_info
 
 
-  '''
-    Returns the default group to use for the api key.
-    The default group is the group representing the single user.
-  '''
   @property
   def default_group(self):
+    """
+      Returns the default group to use for the api key.
+      The default group is the group representing the single user.
+    """
     return self.api.default_group
 
 
   def find_project(self, name: str, group_name: str = None):
+    """
+      Find a project by name and (optionally) group name.
+      If group name is not passed, the user's default group is used.
+    """
     group_name = group_name or self.default_group['groupName']
 
     res = self.api.get_request(
@@ -40,6 +45,10 @@ class AnnoLab:
 
 
   def create_project(self, name: str, group_name: str = None):
+    """
+      Create a project.
+      If group name is not passed, the user's default group is used.
+    """
     group_name = group_name or self.default_group['groupName']
 
     res = self.api.post_request(
@@ -78,6 +87,10 @@ class Project:
 
 
   def find_source(self, name: str, directory: str = None):
+    """
+      Search for a source within a project by name and (optionally) directory.
+      If directory is not provided, the default directory is used (typically "Uploads").
+    """
     res = self.api.get_request(
       endpoints.Source.get_source_by_path(
         group_name=self.api.default_group['groupName'],
@@ -91,6 +104,10 @@ class Project:
 
 
   def create_text_source(self, name: str, text: str, directory: str = None):
+    """
+      Creates a text source.
+      If directory is not provided, the default directory is used (typically "Uploads").
+    """
     body = {
       'projectIdentifier': self.id or self.name,
       'groupName': self.group_name,
@@ -109,8 +126,16 @@ class Project:
     return res.json()
 
 
-  def create_pdf_source(self, filepath: str, name: str = None, directory: str = None):
-    name = name or path.basename(filepath)
+  def create_pdf_source(self, file: Union[str, io.IOBase, bytes], name: str = None, directory: str = None):
+    """
+      Creates a pdf source from a local file, bytes, or filelike object.
+      If directory is not provided, the default directory is used (typically "Uploads").
+    """
+    is_io_or_bytes = isinstance(file, io.IOBase) or isinstance(file, bytes)
+    if (is_io_or_bytes and name is None):
+      raise Exception('You must provide a name when passing a filelike object for pdf source creation')
+
+    name = name or path.basename(file)
 
     init_res = self.api.post_request(
       endpoints.Source.post_initialize_pdf(),
@@ -123,8 +148,11 @@ class Project:
 
     upload_url = init_res.json()['uploadUrl']
 
-    with open(filepath, 'r+b') as pdf_file:
-      self.api.put_request(upload_url, data = pdf_file, headers={'Content-Type': 'application/pdf'})
+    pdf_file = file if is_io_or_bytes else open(file, 'r+b')
+    self.api.put_request(upload_url, data = pdf_file, headers={'Content-Type': 'application/pdf'})
+
+    if (not isinstance(file, bytes)):
+      pdf_file.close()
 
     create_res = self.api.post_request(
       endpoints.Source.post_create_pdf(),
@@ -137,6 +165,19 @@ class Project:
 
     return create_res.json()
 
+
+  def create_pdf_source_from_web(self, url: str, name: str = None, directory: str = None):
+    """
+      Creates a pdf source from a web url.
+      If directory is not provided, the default directory is used (typically "Uploads").
+    """
+    name = name or path.basename(url)
+    res = requests.get(url)
+
+    if (res.status_code >= 300):
+      res.raise_for_status()
+
+    self.create_pdf_source(res.content, name, directory)
 
 
   @staticmethod
