@@ -1,6 +1,6 @@
 import io
 from os import path
-from typing import Dict, Union
+from typing import Any, Dict, List, Union
 import requests
 
 from annolab_sdk import endpoints
@@ -176,7 +176,41 @@ class Project:
     if (res.status_code >= 300):
       res.raise_for_status()
 
-    self.create_pdf_source(res.content, name, directory)
+    return self.create_pdf_source(res.content, name, directory)
+
+
+  def create_annotations(
+    self,
+    source_name: str,
+    annotations: List[Any],
+    relations: List[Any] = [],
+    dedup: bool = True,
+    directory: str = None):
+    """
+      Create annotations against a source.
+
+      Annotation parameters:
+        type:      str  (Required)
+        client_id: str  (Optional, Required if passing relations)
+        schema:    str  (Optional)
+        value:     str  (Optional)
+        offsets:   [int, int] (Optional)
+        bbox:      [int, int, int, int] (Optional)
+        layer:     str  (Optional)
+        page:      int  (Optional)
+        reviewed   bool (Optional)
+    """
+    directory = directory or self.default_dir
+
+    res = self.api.post_request(
+      endpoints.Source.post_annotations(self.group_name, self.name, directory, source_name),
+      {
+        'annotations': list(map(Annotation.create_api_annotation, annotations)),
+        'relations': list(map(AnnotationRelation.create_api_relation, relations)),
+        'preventDuplication': dedup
+      })
+
+    return res.json()
 
 
   @staticmethod
@@ -219,3 +253,63 @@ class Source:
   @staticmethod
   def create_from_response_json(resp_json: Dict, api_helper: ApiHelper):
     return Source(resp_json['name'], resp_json['id'], resp_json['groupName'], resp_json['groupId'], api_helper=api_helper)
+
+
+class Annotation:
+
+  @staticmethod
+  def create_api_annotation(dict: Dict):
+    """
+    Maps an sdk annotation dict to an api annotation dict, for use in calls to the api.
+
+    Annotation parameters:
+      type:      str  (Required)
+      client_id: str  (Optional, Required if passing relations)
+      schema:    str  (Optional)
+      value:     str  (Optional)
+      offsets:   [int, int] (Optional)
+      bbox:      [int, int, int, int] (Optional)
+      layer:     str  (Optional)
+      page:      int  (Optional)
+      reviewed   bool (Optional)
+    """
+    annotation = { 'annoTypeIdentifier': dict['type'] }
+
+    if ('client_id' in dict): annotation['clientId'] = str(dict['client_id'])
+    if ('offsets' in dict): annotation['offsets'] = dict['offsets']
+    if ('schema' in dict): annotation['schemaIdentifier'] = dict['schema']
+    if ('value' in dict): annotation['value'] = dict['value']
+    if ('bbox' in dict): annotation['bbox'] = dict['bbox']
+    if ('layer' in dict): annotation['layerIdentifier'] = dict['layer']
+    if ('page' in dict): annotation['pageNumber'] = dict['page']
+    if ('reviewed' in dict): annotation['isReviewed'] = dict['reviewed']
+
+    return annotation
+
+
+
+class AnnotationRelation:
+
+  @staticmethod
+  def create_api_relation(dict: Dict):
+    """
+    Maps an sdk relation dict to an api annotation relation dict, for use in calls to the api.
+
+    AnnotationRelation parameters:
+      annotations: [Union[str, int], Union[str, int]]
+      type:        str
+      schema:      str
+      value:       str
+      reviewed     bool (Optional)
+    """
+    relation = {
+      'predecessorId': str(dict['annotations'][0]),
+      'successorId': str(dict['annotations'][1])
+    }
+
+    if ('type' in dict): relation['typeIdentifier'] = dict['client_id']
+    if ('schema' in dict): relation['schemaIdentifier'] = dict['schema']
+    if ('value' in dict): relation['value'] = dict['value']
+    if ('reviewed' in dict): relation['isReviewed'] = dict['reviewed']
+
+    return relation
