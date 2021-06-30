@@ -4,9 +4,9 @@ from urllib import parse
 import logging
 from requests.models import Response
 
-import annolab_sdk
-from annolab_sdk import endpoints
-from annolab_sdk.util.cached_property import cached_property
+import annolab
+from annolab import endpoints
+from annolab.util.cached_property import cached_property
 
 class ApiHelper(object):
 
@@ -16,7 +16,7 @@ class ApiHelper(object):
     api_url = 'http://localhost:8080',
   ):
     self.api_url = api_url
-    self.api_key = api_key or annolab_sdk.api_key
+    self.api_key = api_key or annolab.api_key
 
 
   @property

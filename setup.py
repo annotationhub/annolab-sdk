@@ -2,8 +2,8 @@
 from setuptools import setup, find_packages
 
 setup(
-  name = 'annolab-sdk',
-  version='0.0.6',
+  name = 'annolab',
+  version='0.1.0',
   packages = find_packages(),
   author='AnnoLab',
   maintainer='Luke Simkins; Grant DeLozier',
