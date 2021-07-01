@@ -17,40 +17,40 @@ class AnnoLab:
 
 
   @property
-  def default_group(self):
+  def default_owner(self):
     """
       Returns the default group to use for the api key.
       The default group is the group representing the single user.
     """
-    return self.__api.default_group
+    return self.__api.default_owner
 
 
-  def find_project(self, name: str, group_name: str = None):
+  def find_project(self, name: str, owner_name: str = None):
     """
       Find a project by name and (optionally) group name.
       If group name is not passed, the user's default group is used.
     """
-    group_name = group_name or self.default_group['groupName']
+    owner_name = owner_name or self.default_owner['groupName']
 
     res = self.__api.get_request(
-      endpoints.Project.get_group_project(group_name, name)
+      endpoints.Project.get_group_project(owner_name, name)
     )
 
     return Project.create_from_response_json(res.json(), self.__api)
 
 
-  def create_project(self, name: str, group_name: str = None):
+  def create_project(self, name: str, owner_name: str = None):
     """
       Create a project.
       If group name is not passed, the user's default group is used.
     """
-    group_name = group_name or self.default_group['groupName']
+    owner_name = owner_name or self.default_owner['groupName']
 
     res = self.__api.post_request(
       endpoints.Project.post_create(),
       {
         'name': name,
-        'groupName': group_name
+        'groupName': owner_name
       }
     )
 

@@ -81,8 +81,8 @@ class Source:
 
 
   @staticmethod
-  def get_source_by_path(group_name: str, project_name: str, directory_name: str, source_ref_name: str):
-    return f'v1/source/{group_name}/{project_name}/{directory_name}/{source_ref_name}'
+  def get_source_by_path(owner_name: str, project_name: str, directory_name: str, source_ref_name: str):
+    return f'v1/source/{owner_name}/{project_name}/{directory_name}/{source_ref_name}'
 
 
   @staticmethod
@@ -101,13 +101,13 @@ class Source:
 
 
   @staticmethod
-  def post_annotations(group_name: str, project_name: str, directory_name: str, source_ref_name: str):
-    return f'v1/source/{group_name}/{project_name}/{directory_name}/{source_ref_name}/annotations'
+  def post_annotations(owner_name: str, project_name: str, directory_name: str, source_ref_name: str):
+    return f'v1/source/{owner_name}/{project_name}/{directory_name}/{source_ref_name}/annotations'
 
 
   @staticmethod
-  def delete_using_name(group_name: str, project_name: str, directory_name: str, source_ref_name: str):
-    return f'v1/source/{group_name}/{project_name}/{directory_name}/{source_ref_name}'
+  def delete_using_name(owner_name: str, project_name: str, directory_name: str, source_ref_name: str):
+    return f'v1/source/{owner_name}/{project_name}/{directory_name}/{source_ref_name}'
 
 
   @staticmethod

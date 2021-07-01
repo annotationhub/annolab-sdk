@@ -14,22 +14,22 @@ class Project:
     self,
     name: str,
     id: int,
-    group_name: str,
-    group_id: int,
+    owner_name: str,
+    owner_id: int,
     default_dir: str,
     api_helper: ApiHelper
   ):
     self.name = name
     self.id = id
-    self.group_name = group_name
-    self.group_id = group_id
+    self.owner_name = owner_name
+    self.owner_id = owner_id
     self.default_dir = default_dir
     self.__api = api_helper
 
 
   @property
   def project_path(self):
-    return f'{self.group_name}/{self.name}'
+    return f'{self.owner_name}/{self.name}'
 
 
   def find_source(self, name: str, directory: str = None):
@@ -39,7 +39,7 @@ class Project:
     """
     res = self.__api.get_request(
       endpoints.Source.get_source_by_path(
-        group_name=self.__api.default_group['groupName'],
+        owner_name=self.__api.default_owner['groupName'],
         project_name=self.name,
         directory_name=directory or self.default_dir,
         source_ref_name=name
@@ -56,7 +56,7 @@ class Project:
     """
     body = {
       'projectIdentifier': self.id or self.name,
-      'groupName': self.group_name,
+      'groupName': self.owner_name,
       'sourceName': name,
       'text': text
     }
@@ -87,7 +87,7 @@ class Project:
       endpoints.Source.post_initialize_pdf(),
       {
         'projectIdentifier': self.id or self.name,
-        'groupName': self.group_name,
+        'groupName': self.owner_name,
         'directoryIdentifier': directory or self.default_dir,
         'sourceName': name,
       })
@@ -104,7 +104,7 @@ class Project:
       endpoints.Source.post_create_pdf(),
       {
         'projectIdentifier': self.id or self.name,
-        'groupName': self.group_name,
+        'groupName': self.owner_name,
         'directoryIdentifier': directory or self.default_dir,
         'sourceIdentifier': name,
       })
@@ -150,7 +150,7 @@ class Project:
     directory = directory or self.default_dir
 
     res = self.__api.post_request(
-      endpoints.Source.post_annotations(self.group_name, self.name, directory, source_name),
+      endpoints.Source.post_annotations(self.owner_name, self.name, directory, source_name),
       {
         'annotations': list(map(Annotation.create_api_annotation, annotations)),
         'relations': list(map(AnnotationRelation.create_api_relation, relations)),
@@ -170,7 +170,7 @@ class Project:
   ):
     body = {
       'projectIdentifier': self.name,
-      'groupName' : self.group_name,
+      'groupName' : self.owner_name,
       'includeSchemas': include_schemas,
       'includeSources': include_sources
     }

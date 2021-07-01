@@ -39,7 +39,7 @@ Configure the sdk with your api key using one of the following two methods.
 .. code-block:: python
 
     >>> from annolab import Annolab
-    >>> annolab = AnnoLab(api_key='YOUR_API_KEY')
+    >>> lab = AnnoLab(api_key='YOUR_API_KEY')
 
 2. Or set a global api key. All subsequent uses of the sdk will use this global key for authentication.
 
@@ -49,7 +49,7 @@ Configure the sdk with your api key using one of the following two methods.
     >>> from annolab import Annolab
     >>>
     >>> annolab.api_key = 'YOUR_API_KEY'
-    >>> annolab = AnnoLab()
+    >>> lab = AnnoLab()
 
 
 Usage Examples
@@ -59,23 +59,23 @@ Creating a project.
 
 .. code-block:: python
 
-    annolab.create_project('My New Project')
+    lab.create_project('My New Project')
     # OR
-    annolab.create_project(name='My New Project', group_name='AnnoLab')
+    lab.create_project(name='My New Project', owner_name='AnnoLab')
 
 Getting an existing project.
 
 .. code-block:: python
 
-    annolab.find_project('My New Project')
+    lab.find_project('My New Project')
     # OR
-    annolab.find_project(name='My New Project', group_name='AnnoLab')
+    lab.find_project(name='My New Project', owner_name='AnnoLab')
 
 Creating a new text source. Will be added to the "Uploads" directory by default.
 
 .. code-block:: python
 
-    project = annolab.find_project('My New Project')
+    project = lab.find_project('My New Project')
     project.create_text_source(name='New Source', text='Some text or tokens for annotation.')
     # Specifying a directory
     project.create_text_source(

@@ -35,13 +35,13 @@ class ApiHelper(object):
     The default group is the group representing the single user.
   '''
   @cached_property
-  def default_group(self):
-    default_group = None
+  def default_owner(self):
+    default_owner = None
     for group in self.api_key_info['groups']:
       if (group['isSingleUser'] is True):
-        default_group = group
+        default_owner = group
 
-    return default_group
+    return default_owner
 
 
   def get_request(self, path: str, body: Dict[str, Any] = None) -> Response:
