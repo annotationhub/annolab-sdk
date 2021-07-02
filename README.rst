@@ -18,10 +18,7 @@ Assuming that you have Python and ``virtualenv`` installed, set up your environm
 
 .. code-block:: sh
 
-    $ git clone https://github.com/boto/boto3.git
-    $ cd boto3
     $ virtualenv venv
-    ...
     $ . venv/bin/activate
     $ python -m pip install annolab
 
