@@ -72,7 +72,7 @@ class Project:
     return res.json()
 
 
-  def create_pdf_source(self, file: Union[str, io.IOBase, bytes], name: str = None, directory: str = None):
+  def create_pdf_source(self, file: Union[str, io.IOBase, bytes], name: str = None, directory: str = None, **params: dict):
     """
       Creates a pdf source from a local file, bytes, or filelike object.
       If directory is not provided, the default directory is used (typically "Uploads").
@@ -100,19 +100,23 @@ class Project:
     if (not isinstance(file, bytes)):
       pdf_file.close()
 
+    body = {
+      'projectIdentifier': self.id or self.name,
+      'groupName': self.owner_name,
+      'directoryIdentifier': directory or self.default_dir,
+      'sourceIdentifier': name,
+    }
+
+    body.update(params)
+
     create_res = self.__api.post_request(
       endpoints.Source.post_create_pdf(),
-      {
-        'projectIdentifier': self.id or self.name,
-        'groupName': self.owner_name,
-        'directoryIdentifier': directory or self.default_dir,
-        'sourceIdentifier': name,
-      })
+      body)
 
     return create_res.json()
 
 
-  def create_pdf_source_from_web(self, url: str, name: str = None, directory: str = None):
+  def create_pdf_source_from_web(self, url: str, name: str = None, directory: str = None, **params: dict):
     """
       Creates a pdf source from a web url.
       If directory is not provided, the default directory is used (typically "Uploads").
@@ -123,7 +127,7 @@ class Project:
     if (res.status_code >= 300):
       res.raise_for_status()
 
-    return self.create_pdf_source(res.content, name, directory)
+    return self.create_pdf_source(res.content, name, directory, params)
 
 
   def create_annotations(

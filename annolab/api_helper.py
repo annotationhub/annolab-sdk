@@ -13,7 +13,7 @@ class ApiHelper(object):
   def __init__(
     self,
     api_key = None,
-    api_url = 'http://localhost:8080',
+    api_url = 'https://api.annolab.ai',
   ):
     self.api_url = api_url
     self.api_key = api_key or annolab.api_key
@@ -44,7 +44,7 @@ class ApiHelper(object):
     return default_owner
 
 
-  def get_request(self, path: str, body: Dict[str, Any] = None) -> Response:
+  def get_request(self, path: str, body: Dict[str, Any] = None, params: dict = None) -> Response:
     resp = requests.get(
       parse.urljoin(self.api_url, path),
       headers=self.__auth_header,
@@ -56,11 +56,12 @@ class ApiHelper(object):
     return resp
 
 
-  def post_request(self, path: str, body: Dict[str, Any] = None):
+  def post_request(self, path: str, body: Dict[str, Any] = None, params: dict = None):
     resp = requests.post(
       parse.urljoin(self.api_url, path),
       headers=self.__auth_header,
-      json=body
+      json=body,
+      params=params
     )
 
     self.__handle_non_2xx_response(resp)
@@ -68,11 +69,12 @@ class ApiHelper(object):
     return resp
 
 
-  def put_request(self, path: str, data: Any = None, headers = None):
+  def put_request(self, path: str, data: Any = None, headers = None, params: dict = None):
     resp = requests.put(
       parse.urljoin(self.api_url, path),
       headers=headers,
-      data=data
+      data=data,
+      params=params
     )
 
     self.__handle_non_2xx_response(resp)
