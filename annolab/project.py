@@ -72,10 +72,18 @@ class Project:
     return res.json()
 
 
-  def create_pdf_source(self, file: Union[str, io.IOBase, bytes], name: str = None, directory: str = None, **params: dict):
+  def create_pdf_source(
+    self, 
+    file: Union[str, io.IOBase, bytes], 
+    name: str = None, 
+    directory: str = None, 
+    ocr: bool = False,
+    preprocessor: str = 'none',
+    **params: dict):
     """
       Creates a pdf source from a local file, bytes, or filelike object.
       If directory is not provided, the default directory is used (typically "Uploads").
+      Will OCR using your account preferred OCR if ocr parameter is set to True (Org only)
     """
     is_io_or_bytes = isinstance(file, io.IOBase) or isinstance(file, bytes)
     if (is_io_or_bytes and name is None):
@@ -105,6 +113,8 @@ class Project:
       'groupName': self.owner_name,
       'directoryIdentifier': directory or self.default_dir,
       'sourceIdentifier': name,
+      'ocr': ocr,
+      'preprocessor': preprocessor
     }
 
     body.update(params)
