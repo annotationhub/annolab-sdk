@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
   name = 'annolab',
-  version='0.1.4',
+  version='0.1.5',
   packages = find_packages(),
   author='AnnoLab',
   maintainer='Luke Simkins; Grant DeLozier',
@@ -11,6 +11,9 @@ setup(
   url='https://github.com/lsimkins/annolab-sdk',
   license='Apache',
   description='Official SDK for the AnnoLab Platform',
+  install_requires=[
+    'requests>=2.25.1'
+  ],
   long_description=open('README.rst').read(),
   classifiers=[
     'Development Status :: 3 - Alpha',
