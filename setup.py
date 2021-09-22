@@ -12,7 +12,8 @@ setup(
   license='Apache',
   description='Official SDK for the AnnoLab Platform',
   install_requires=[
-    'requests>=2.25.1'
+    'requests>=2.25.1',
+    'polling2>=0.5.0'
   ],
   long_description=open('README.rst').read(),
   classifiers=[

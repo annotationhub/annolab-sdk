@@ -1,3 +1,4 @@
+from annolab.project_export import ProjectExport
 import io
 from os import path
 from typing import Any, Dict, List, Union
@@ -180,25 +181,34 @@ class Project:
     source_ids: List[int] = None,
     layers: List[str] = None,
     include_schemas: bool = False,
-    include_sources: bool = False
+    include_sources: bool = False,
+    include_text_bounds: bool = False,
+    timeout: int = 3600
   ):
     body = {
       'projectIdentifier': self.name,
       'groupName' : self.owner_name,
       'includeSchemas': include_schemas,
-      'includeSources': include_sources
+      'includeSources': include_sources,
+      'includeTextBounds': include_text_bounds
     }
 
     if (source_ids is not None): body['sourceIds'] = source_ids
     if (layers is not None): body['annotationLayerNames'] = layers
 
-    res = self.__api.post_request(
-      endpoints.Export.post_export_project(),
-      body
-    )
+    export = ProjectExport(
+      self.__api,
+      self,
+      {
+        'source_ids': source_ids,
+        'layers': layers,
+        'include_schemas': include_schemas,
+        'include_sources': include_sources,
+        'include_text_bounds': include_text_bounds
+      })
 
-    with open(filepath, 'wb') as f:
-      f.write(res.content)
+    export.start()
+    export.download_on_finish(filepath, timeout=timeout)
 
 
   @staticmethod
@@ -209,4 +219,4 @@ class Project:
       resp_json['groupName'],
       resp_json['groupId'],
       resp_json['defaultDirectory'],
-      api_helper=api_helper)
+      api_helper=api_helper,)
