@@ -43,8 +43,9 @@ class ProjectImport:
 
     shutil.unpack_archive(self.export_filepath, self.unpack_target_dir)
     self.__find_entity_files()
-    self.import_sources()
-    self.import_schemas()
+    # self.import_sources()
+    # self.import_schemas()
+    self.import_layers()
 
     shutil.rmtree(self.unpack_target_dir, ignore_errors=True)
 
@@ -55,7 +56,7 @@ class ProjectImport:
       for source in sources:
         self.create_source(source)
 
-  
+
   def import_schemas(self):
     schema_filepath = os.path.join(self.unpack_target_dir, self.schemas_file)
     types_filepath = os.path.join(self.unpack_target_dir, self.atntypes_file)
@@ -82,6 +83,23 @@ class ProjectImport:
         except HTTPError as e:
           if (e.response.status_code == HTTPStatus.CONFLICT):
             logger.warning(f'Annotation type {atn_type.get("name")} already exists. Skipping')
+          else:
+            raise e
+
+
+  def import_layers(self):
+    layers_filepath = os.path.join(self.unpack_target_dir, self.layers_file)
+    with jsonlines.open(layers_filepath) as layers:
+      for layer in layers:
+        try:
+          self.project.create_annotation_layer(
+            name=layer.get('name'),
+            is_gold=layer.get('isGoldSet'),
+            description=layer.get('description')
+          )
+        except HTTPError as e:
+          if (e.response.status_code == HTTPStatus.CONFLICT):
+            logger.warning(f'Annotation type {layer.get("name")} already exists. Skipping')
           else:
             raise e
 

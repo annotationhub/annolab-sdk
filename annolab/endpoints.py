@@ -69,7 +69,7 @@ class AnnotationRelation:
 class AnnotationLayer:
 
   @staticmethod
-  def create():
+  def post_create():
     return 'v1/layer/create'
 
 

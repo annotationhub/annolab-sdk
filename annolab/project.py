@@ -192,14 +192,14 @@ class Project:
 
     return res.json()
 
-  
+
   def create_annotation_type(self, name: str, **kargs):
     """
       Create an annotation type.
 
       Annotation type parameters:
         schema:      str or int (Required)
-        name:        str  (Requred)
+        name:        str  (Required)
         color:       str  (Optional)
         is_relation: str  (Optional, Defaults to false)
         is_document_classification: str  (Optional, Defaults to false)
@@ -213,6 +213,28 @@ class Project:
         'color': kargs.get('color', None),
         'isRelation': kargs.get('is_relation', False),
         'isDocumentClassification': kargs.get('is_document_classification', False),
+      }
+    )
+
+    return res.json()
+
+
+  def create_annotation_layer(self, name: str, is_gold: bool = False, description: str = None):
+    """
+      Create an annotation layer.
+
+      Annotation type parameters:
+        name:        str  (Required)
+        is_gold:     bool (Optional, Defaults to False)
+        description: str  (Optional)
+    """
+    res = self.__api.post_request(
+      endpoints.AnnotationLayer.post_create(),
+      {
+        'projectIdentifier': self.id,
+        'layerName': name,
+        'isGold': is_gold,
+        'description': description,
       }
     )
 
