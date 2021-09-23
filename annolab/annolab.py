@@ -65,8 +65,8 @@ class AnnoLab:
     if (name is None):
       name = os.path.basename(filepath).split('.')[0]
 
-    project = self.create_project(name, owner_name, is_public=is_public)
-    # project = self.find_project(name, owner_name)
+    # project = self.create_project(name, owner_name, is_public=is_public)
+    project = self.find_project(name, owner_name)
 
     project_import = ProjectImport(filepath, project, owner_name)
 

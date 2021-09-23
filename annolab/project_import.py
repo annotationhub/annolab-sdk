@@ -25,6 +25,9 @@ class ProjectImport:
   schemas_file: str = None
   atntypes_file: str = None
 
+  # Maps original source id to source name + directory
+  source_map: dict = {}
+
   def __init__(
     self,
     export_filepath: str,
@@ -43,9 +46,10 @@ class ProjectImport:
 
     shutil.unpack_archive(self.export_filepath, self.unpack_target_dir)
     self.__find_entity_files()
-    # self.import_sources()
-    # self.import_schemas()
+    self.import_sources()
+    self.import_schemas()
     self.import_layers()
+    self.import_annotations()
 
     shutil.rmtree(self.unpack_target_dir, ignore_errors=True)
 
@@ -104,7 +108,42 @@ class ProjectImport:
             raise e
 
 
+  def import_annotations(self):
+    batch_size = 1000
+    annotations_filepath = os.path.join(self.unpack_target_dir, self.annotations_file)
+
+    batch = []
+
+    with jsonlines.open(annotations_filepath) as annotations:
+      for annotation in annotations:
+        print(self.source_map, annotation.get('sourceId'))
+        sourceName = self.source_map.get(annotation.get('sourceId'))[0]
+        dirName = self.source_map.get(annotation.get('sourceId'))[1]
+        batch.append({
+          'type': annotation.get('typeName'),
+          'schema': annotation.get('schemaName'),
+          'value': annotation.get('value'),
+          'offsets': annotation.get('offsets'),
+          'text_bounds': annotation.get('textBounds'),
+          'image_bounds': annotation.get('imageBounds'),
+          'client_id': annotation.get('id'),
+          'layer': annotation.get('layerName'),
+          'page': annotation.get('pageNumber'),
+          'endPage': annotation.get('endPageNumber'),
+          'source': sourceName,
+          'directory': dirName,
+          'project': self.project.id
+        })
+        if (len(batch) >= batch_size):
+          self.project.create_bulk_annotations(batch, dedup=True)
+          batch = []
+
+    # Insert final batch
+    self.project.create_bulk_annotations(batch, dedup=True)
+
+
   def create_source(self, source: dict):
+    self.source_map[source.get('sourceId')] = [source.get('sourceName'), source.get('directoryName')]
     try:
       if source['type'] == 'text':
         self.project.create_text_source(source['sourceName'], source['text'], source['directoryName'])

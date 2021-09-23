@@ -149,18 +149,21 @@ class Project:
     dedup: bool = True,
     directory: str = None):
     """
-      Create annotations against a source.
+      Create annotations against a single source.
 
       Annotation parameters:
-        type:      str  (Required)
-        client_id: str  (Optional, Required if passing relations)
-        schema:    str  (Optional)
-        value:     str  (Optional)
-        offsets:   [int, int] (Optional)
-        bbox:      [int, int, int, int] (Optional)
-        layer:     str  (Optional)
-        page:      int  (Optional)
-        reviewed   bool (Optional)
+        type:       str  (Required)
+        client_id:  str  (Optional, Required if passing relations)
+        schema:     str  (Optional)
+        value:      str  (Optional)
+        offsets:    [int, int] (Optional)
+        text_bounds dict { 'type': 'Polygon' or 'MultiPolygon', coordinates: List[][][] } (Optional)
+        image_bounds dict { 'type': 'Polygon' or 'MultiPolygon', coordinates: List[][][] } (Optional)
+        bbox:       [int, int, int, int] (Optional)
+        layer:      str  (Optional)
+        page:       int  (Optional) Required for classification annotations.
+        end_page    int  (Optional) Required for classification annotations.
+        reviewed    bool (Optional)
     """
     directory = directory or self.default_dir
 
@@ -171,6 +174,40 @@ class Project:
         'relations': list(map(AnnotationRelation.create_api_relation, relations)),
         'preventDuplication': dedup
       })
+
+    return res.json()
+
+
+  def create_bulk_annotations(
+    self,
+    annotations: List[Any],
+    dedup: bool = True,
+  ):
+    """
+      Create bulk annotations against one or more sources.
+
+      Annotation parameters:
+        sourceIdentifier
+        type:      str  (Required)
+        client_id: str  (Optional, Required if passing relations)
+        schema:    str  (Optional)
+        value:     str  (Optional)
+        offsets:   [int, int] (Optional)
+        text_bounds dict { 'type': 'Polygon' or 'MultiPolygon', coordinates: List[][][] } (Optional)
+        image_bounds dict { 'type': 'Polygon' or 'MultiPolygon', coordinates: List[][][] } (Optional)
+        bbox:      [int, int, int, int] (Optional)
+        layer:     str  (Optional)
+        page:      int  (Optional) Required for classification annotations.
+        end_page   int  (Optional) Required for classification annotations.
+        reviewed   bool (Optional)
+    """
+    res = self.__api.post_request(
+      endpoints.Annotation.post_bulk_create(),
+      {
+        'annotations': list(map(Annotation.create_api_annotation, annotations)),
+        'preventDuplication': dedup
+      }
+    )
 
     return res.json()
 
