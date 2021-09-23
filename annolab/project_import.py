@@ -44,6 +44,7 @@ class ProjectImport:
     shutil.unpack_archive(self.export_filepath, self.unpack_target_dir)
     self.__find_entity_files()
     self.import_sources()
+    self.import_schemas()
 
     shutil.rmtree(self.unpack_target_dir, ignore_errors=True)
 
@@ -53,6 +54,36 @@ class ProjectImport:
     with jsonlines.open(filepath) as sources:
       for source in sources:
         self.create_source(source)
+
+  
+  def import_schemas(self):
+    schema_filepath = os.path.join(self.unpack_target_dir, self.schemas_file)
+    types_filepath = os.path.join(self.unpack_target_dir, self.atntypes_file)
+
+    with jsonlines.open(schema_filepath) as schemas:
+      for schema in schemas:
+        try:
+          self.project.create_annotation_schema(schema['name'])
+        except HTTPError as e:
+          if (e.response.status_code == HTTPStatus.CONFLICT):
+            logger.warning(f'Schema {schema.get("name")} already exists. Skipping')
+          else:
+            raise e
+
+    with jsonlines.open(types_filepath) as atn_types:
+      for atn_type in atn_types:
+        try:
+          self.project.create_annotation_type(
+            name=atn_type.get('name'),
+            color=atn_type.get('color'),
+            is_relation=atn_type.get('isRelation'),
+            is_document_classification=atn_type.get('isDocumentClassification'),
+            schema=atn_type.get('schemaName'))
+        except HTTPError as e:
+          if (e.response.status_code == HTTPStatus.CONFLICT):
+            logger.warning(f'Annotation type {atn_type.get("name")} already exists. Skipping')
+          else:
+            raise e
 
 
   def create_source(self, source: dict):

@@ -175,6 +175,50 @@ class Project:
     return res.json()
 
 
+  def create_annotation_schema(self, name: str):
+    """
+      Create an annotation schema.
+
+      Annotation schema parameters:
+        name:       str  (Required)
+    """
+    res = self.__api.post_request(
+      endpoints.AnnotationSchema.post_create(),
+      {
+        'schemaName': name,
+        'projectIdentifier': self.id
+      }
+    )
+
+    return res.json()
+
+  
+  def create_annotation_type(self, name: str, **kargs):
+    """
+      Create an annotation type.
+
+      Annotation type parameters:
+        schema:      str or int (Required)
+        name:        str  (Requred)
+        color:       str  (Optional)
+        is_relation: str  (Optional, Defaults to false)
+        is_document_classification: str  (Optional, Defaults to false)
+    """
+    res = self.__api.post_request(
+      endpoints.AnnotationType.post_create(),
+      {
+        'schemaIdentifier': kargs.get('schema'),
+        'projectIdentifier': self.id,
+        'typeName': name,
+        'color': kargs.get('color', None),
+        'isRelation': kargs.get('is_relation', False),
+        'isDocumentClassification': kargs.get('is_document_classification', False),
+      }
+    )
+
+    return res.json()
+
+
   def export(
     self,
     filepath: str,
