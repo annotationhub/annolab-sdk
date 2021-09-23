@@ -1,5 +1,5 @@
 import json
-import logging
+from logging import Logger
 import requests
 import shutil
 
@@ -9,7 +9,7 @@ from polling2 import poll
 
 from enum import Enum
 
-logger = logging(__name__)
+logger = Logger(__name__)
 
 class ExportStatus(Enum):
   initialized = 'initalized'
