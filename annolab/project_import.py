@@ -1,4 +1,3 @@
-import json
 from http import HTTPStatus
 from logging import Logger
 import os
@@ -10,8 +9,6 @@ from typing import Union, List
 
 import jsonlines
 from requests.exceptions import HTTPError
-
-from annolab import Project
 
 logger = Logger(__name__)
 
@@ -32,7 +29,7 @@ class ProjectImport:
   def __init__(
     self,
     export_filepath: str,
-    project: Project,
+    project,
     groupId: Union[str, int]
   ):
     self.export_filepath = export_filepath

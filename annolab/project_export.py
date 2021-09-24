@@ -4,7 +4,7 @@ import requests
 import shutil
 
 from annolab.api_helper import ApiHelper
-from annolab import endpoints, project
+from annolab import endpoints
 from polling2 import poll
 
 from enum import Enum
@@ -25,7 +25,7 @@ class ProjectExport:
   def __init__(
     self,
     api_helper: ApiHelper,
-    project: project,
+    project,
     options: dict
   ):
     self.__api = api_helper

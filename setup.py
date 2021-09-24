@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
   name = 'annolab',
-  version='0.2.0',
+  version='0.2.2',
   packages = find_packages(),
   author='AnnoLab',
   maintainer='Luke Simkins; Grant DeLozier',
