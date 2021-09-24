@@ -27,6 +27,7 @@ class ProjectImport:
 
   # Maps original source id to source name + directory
   source_map: dict = {}
+  annotation_map: dict = {}
 
   def __init__(
     self,
@@ -46,11 +47,17 @@ class ProjectImport:
 
     shutil.unpack_archive(self.export_filepath, self.unpack_target_dir)
     self.__find_entity_files()
+
+
+  def import_all(self):
     self.import_sources()
     self.import_schemas()
     self.import_layers()
     self.import_annotations()
+    self.import_relations()
 
+
+  def cleanup(self):
     shutil.rmtree(self.unpack_target_dir, ignore_errors=True)
 
 
@@ -114,9 +121,13 @@ class ProjectImport:
 
     batch = []
 
+    def insert_batch(batch: List):
+      created = self.project.create_bulk_annotations(batch, dedup=True)
+      for atn in created:
+        self.annotation_map[str(atn.get('clientId'))] = atn
+
     with jsonlines.open(annotations_filepath) as annotations:
       for annotation in annotations:
-        print(self.source_map, annotation.get('sourceId'))
         sourceName = self.source_map.get(annotation.get('sourceId'))[0]
         dirName = self.source_map.get(annotation.get('sourceId'))[1]
         batch.append({
@@ -135,11 +146,36 @@ class ProjectImport:
           'project': self.project.id
         })
         if (len(batch) >= batch_size):
-          self.project.create_bulk_annotations(batch, dedup=True)
-          batch = []
+          insert_batch(batch)
 
     # Insert final batch
-    self.project.create_bulk_annotations(batch, dedup=True)
+    if (len(batch) > 0):
+      insert_batch(batch)
+
+
+  def import_relations(self):
+    batch_size = 1000
+    relations_filepath = os.path.join(self.unpack_target_dir, self.relations_file)
+    batch = []
+
+    with jsonlines.open(relations_filepath) as relations:
+      for rln in relations:
+        batch.append({
+          'annotations': [
+            self.annotation_map.get(str(rln.get('predecessorId'))).get('id'),
+            self.annotation_map.get(str(rln.get('successorId'))).get('id')
+          ],
+          'type': rln.get('typeName'),
+          'schema': rln.get('schemaName'),
+          'value': rln.get('value'),
+          'project': self.project.id
+        })
+        if (len(batch) >= batch_size):
+          self.project.create_bulk_relations(batch, dedup=True)
+
+    # Insert final batch
+    if (len(batch) > 0):
+      self.project.create_bulk_relations(batch, dedup=True)
 
 
   def create_source(self, source: dict):
@@ -203,7 +239,7 @@ class ProjectImport:
 
     return None
 
-  
+
   def __find_source_bounds(self, source_id: int):
     """Finds the source bounds of a source by iterating through the bounds file for the source id.
 

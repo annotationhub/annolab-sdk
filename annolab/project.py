@@ -181,13 +181,15 @@ class Project:
   def create_bulk_annotations(
     self,
     annotations: List[Any],
-    dedup: bool = True,
+    dedup = True,
   ):
     """
       Create bulk annotations against one or more sources.
+      To use this insert method, the annotation must include the project name or id.
 
       Annotation parameters:
-        sourceIdentifier
+        source     str or int (Required)
+        project    str or int (Required)
         type:      str  (Required)
         client_id: str  (Optional, Required if passing relations)
         schema:    str  (Optional)
@@ -205,6 +207,34 @@ class Project:
       endpoints.Annotation.post_bulk_create(),
       {
         'annotations': list(map(Annotation.create_api_annotation, annotations)),
+        'preventDuplication': dedup
+      }
+    )
+
+    return res.json()
+
+
+  def create_bulk_relations(
+    self,
+    relations: List[Any],
+    dedup = True
+  ):
+    """
+    Create bulk relations against one or more sources.
+    To use this insert method, the annotation must include the project name or id.
+
+    AnnotationRelation parameters:
+      annotations:      [Union[str, int], Union[str, int]]
+      type:             str  (Required)
+      schema:           str  (Required)
+      value:            str  (Optional)
+      reviewed          bool (Optional)
+      project           Union[str, int]
+    """
+    res = self.__api.post_request(
+      endpoints.AnnotationRelation.post_bulk_create(),
+      {
+        'relations': list(map(AnnotationRelation.create_api_relation, relations)),
         'preventDuplication': dedup
       }
     )
