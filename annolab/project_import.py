@@ -58,6 +58,13 @@ class ProjectImport:
     shutil.rmtree(self.unpack_target_dir, ignore_errors=True)
 
 
+  def create_source_map(self):
+    filepath = os.path.join(self.unpack_target_dir, self.source_file)
+    with jsonlines.open(filepath) as sources:
+      for source in sources:
+        self.source_map[source.get('sourceId')] = [source.get('sourceName'), source.get('directoryName')]
+
+
   def import_sources(self):
     filepath = os.path.join(self.unpack_target_dir, self.source_file)
     with jsonlines.open(filepath) as sources:
@@ -125,8 +132,14 @@ class ProjectImport:
 
     with jsonlines.open(annotations_filepath) as annotations:
       for annotation in annotations:
-        sourceName = self.source_map.get(annotation.get('sourceId'))[0]
-        dirName = self.source_map.get(annotation.get('sourceId'))[1]
+        source = self.source_map.get(annotation.get('sourceId'), None)
+        if (source is None):
+          logger.info(f'Skipping annotation for source {annotation.get("sourceId")}, source has not been imported.')
+          continue
+
+        sourceName = source[0]
+        dirName = source[1]
+
         batch.append({
           'type': annotation.get('typeName'),
           'schema': annotation.get('schemaName'),

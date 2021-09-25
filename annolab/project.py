@@ -1,4 +1,3 @@
-from annolab.project_export import ProjectExport
 import io
 from os import path
 from typing import Any, Dict, List, Union
@@ -8,6 +7,8 @@ from annolab import endpoints
 from annolab.api_helper import ApiHelper
 from annolab.annotation import Annotation
 from annolab.annotation_relation import AnnotationRelation
+from annolab.project_import import ProjectImport
+from annolab.project_export import ProjectExport
 
 class Project:
 
@@ -342,6 +343,23 @@ class Project:
 
     export.start()
     export.download_on_finish(filepath, timeout=timeout)
+
+
+  def update_from_export(self, filepath: str, skip_sources=False):
+    project_import = ProjectImport(filepath, self, self.owner_name)
+
+    project_import.unzip_export()
+
+    if (skip_sources):
+      project_import.import_schemas()
+      project_import.import_layers()
+      project_import.create_source_map()
+      project_import.import_annotations()
+      project_import.import_relations()
+    else:
+      project_import.import_all()
+
+    project_import.cleanup()
 
 
   @staticmethod
