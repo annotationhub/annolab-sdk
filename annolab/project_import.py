@@ -120,7 +120,7 @@ class ProjectImport:
 
 
   def import_annotations(self):
-    batch_size = 1000
+    batch_size = 500
     annotations_filepath = os.path.join(self.unpack_target_dir, self.annotations_file)
 
     batch = []
@@ -157,6 +157,7 @@ class ProjectImport:
         })
         if (len(batch) >= batch_size):
           insert_batch(batch)
+          batch=[]
 
     # Insert final batch
     if (len(batch) > 0):
@@ -164,7 +165,7 @@ class ProjectImport:
 
 
   def import_relations(self):
-    batch_size = 1000
+    batch_size = 500
     relations_filepath = os.path.join(self.unpack_target_dir, self.relations_file)
     batch = []
 
@@ -182,6 +183,7 @@ class ProjectImport:
         })
         if (len(batch) >= batch_size):
           self.project.create_bulk_relations(batch, dedup=True)
+          batch = []
 
     # Insert final batch
     if (len(batch) > 0):
