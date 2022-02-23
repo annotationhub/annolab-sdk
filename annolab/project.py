@@ -77,8 +77,8 @@ class Project:
   def create_pdf_source(
     self, 
     file: Union[str, io.IOBase, bytes], 
-    name: str = None, 
-    directory: str = None, 
+    name: str = None,
+    directory: str = None,
     ocr: bool = False,
     preprocessor: str = 'none',
     **params: dict):
@@ -155,7 +155,6 @@ class Project:
       Annotation parameters:
         type:       str  (Required)
         client_id:  str  (Optional, Required if passing relations)
-        schema:     str  (Optional)
         value:      str  (Optional)
         offsets:    [int, int] (Optional)
         text_bounds dict { 'type': 'Polygon' or 'MultiPolygon', coordinates: List[][][] } (Optional)
@@ -193,7 +192,6 @@ class Project:
         project    str or int (Required)
         type:      str  (Required)
         client_id: str  (Optional, Required if passing relations)
-        schema:    str  (Optional)
         value:     str  (Optional)
         offsets:   [int, int] (Optional)
         text_bounds dict { 'type': 'Polygon' or 'MultiPolygon', coordinates: List[][][] } (Optional)
@@ -227,7 +225,6 @@ class Project:
     AnnotationRelation parameters:
       annotations:      [Union[str, int], Union[str, int]]
       type:             str  (Required)
-      schema:           str  (Required)
       value:            str  (Optional)
       reviewed          bool (Optional)
       project           Union[str, int]
@@ -243,39 +240,21 @@ class Project:
     return res.json()
 
 
-  def create_annotation_schema(self, name: str):
-    """
-      Create an annotation schema.
-
-      Annotation schema parameters:
-        name:       str  (Required)
-    """
-    res = self.__api.post_request(
-      endpoints.AnnotationSchema.post_create(),
-      {
-        'schemaName': name,
-        'projectIdentifier': self.id
-      }
-    )
-
-    return res.json()
-
-
   def create_annotation_type(self, name: str, **kargs):
     """
       Create an annotation type.
 
       Annotation type parameters:
-        schema:      str or int (Required)
         name:        str  (Required)
         color:       str  (Optional)
+        category:    str  (Optional)
         is_relation: str  (Optional, Defaults to false)
         is_document_classification: str  (Optional, Defaults to false)
     """
     res = self.__api.post_request(
       endpoints.AnnotationType.post_create(),
       {
-        'schemaIdentifier': kargs.get('schema'),
+        'category': kargs.get('category'),
         'projectIdentifier': self.id,
         'typeName': name,
         'color': kargs.get('color', None),
@@ -314,7 +293,7 @@ class Project:
     filepath: str,
     source_ids: List[int] = None,
     layers: List[str] = None,
-    include_schemas: bool = False,
+    include_annotation_types: bool = False,
     include_sources: bool = False,
     include_text_bounds: bool = False,
     timeout: int = 3600
@@ -322,7 +301,7 @@ class Project:
     body = {
       'projectIdentifier': self.name,
       'groupName' : self.owner_name,
-      'includeSchemas': include_schemas,
+      'includeAnnotationTypes': include_annotation_types,
       'includeSources': include_sources,
       'includeTextBounds': include_text_bounds
     }
@@ -336,7 +315,7 @@ class Project:
       {
         'source_ids': source_ids,
         'layers': layers,
-        'include_schemas': include_schemas,
+        'include_annotation_types': include_annotation_types,
         'include_sources': include_sources,
         'include_text_bounds': include_text_bounds
       })
@@ -351,7 +330,7 @@ class Project:
     project_import.unzip_export()
 
     if (skip_sources):
-      project_import.import_schemas()
+      project_import.import_annotation_types()
       project_import.import_layers()
       project_import.create_source_map()
       project_import.import_annotations()

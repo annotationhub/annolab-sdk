@@ -137,6 +137,6 @@ Exporting a project.
       filepath='/path/to/outfile.zip',
       source_ids=[1,2,3],
       layers=['GoldSet'],
-      include_schemas=True,
+      include_annotation_types=True,
       include_sources=True
     )

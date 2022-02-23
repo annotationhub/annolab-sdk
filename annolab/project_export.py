@@ -60,7 +60,7 @@ class ProjectExport:
     body = {
       'projectIdentifier': self.project.name,
       'groupName' : self.project.owner_name,
-      'includeSchemas': self.options.get('include_schemas', False),
+      'includeAnnotationTypes': self.options.get('include_annotation_types', False),
       'includeSources': self.options.get('include_sources', False),
       'includeTextBounds': self.options.get('include_text_bounds', False)
     }

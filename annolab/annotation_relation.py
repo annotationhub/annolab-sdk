@@ -11,7 +11,6 @@ class AnnotationRelation:
     AnnotationRelation parameters:
       annotations:      [Union[str, int], Union[str, int]]
       type:             str
-      schema:           str
       value:            str
       reviewed          bool (Optional)
       project           Union[str, int]
@@ -22,7 +21,6 @@ class AnnotationRelation:
     }
 
     if ('type' in dict): relation['annoTypeIdentifier'] = dict['type']
-    if ('schema' in dict): relation['schemaIdentifier'] = dict['schema']
     if ('value' in dict): relation['value'] = dict['value']
     if ('reviewed' in dict): relation['isReviewed'] = dict['reviewed']
     if ('project' in dict): relation['projectIdentifier'] = dict['project']

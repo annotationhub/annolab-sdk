@@ -47,13 +47,6 @@ class AnnotationType:
     return 'v1/annotation-type/create'
 
 
-class AnnotationSchema:
-
-  @staticmethod
-  def post_create():
-    return 'v1/schema/create'
-
-
 class AnnotationRelation:
 
   @staticmethod

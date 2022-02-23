@@ -4,6 +4,7 @@ import os
 import re
 import shutil
 import tempfile
+from unicodedata import category
 from uuid import uuid4
 from typing import Union, List
 
@@ -19,7 +20,6 @@ class ProjectImport:
   annotations_file: str = None
   layers_file: str = None
   relations_file: str = None
-  schemas_file: str = None
   atntypes_file: str = None
 
   # Maps original source id to source name + directory
@@ -48,7 +48,7 @@ class ProjectImport:
 
   def import_all(self):
     self.import_sources()
-    self.import_schemas()
+    self.import_annotation_types()
     self.import_layers()
     self.import_annotations()
     self.import_relations()
@@ -72,19 +72,8 @@ class ProjectImport:
         self.create_source(source)
 
 
-  def import_schemas(self):
-    schema_filepath = os.path.join(self.unpack_target_dir, self.schemas_file)
+  def import_annotation_types(self):
     types_filepath = os.path.join(self.unpack_target_dir, self.atntypes_file)
-
-    with jsonlines.open(schema_filepath) as schemas:
-      for schema in schemas:
-        try:
-          self.project.create_annotation_schema(schema['name'])
-        except HTTPError as e:
-          if (e.response.status_code == HTTPStatus.CONFLICT):
-            logger.warning(f'Schema {schema.get("name")} already exists. Skipping')
-          else:
-            raise e
 
     with jsonlines.open(types_filepath) as atn_types:
       for atn_type in atn_types:
@@ -94,7 +83,7 @@ class ProjectImport:
             color=atn_type.get('color'),
             is_relation=atn_type.get('isRelation'),
             is_document_classification=atn_type.get('isDocumentClassification'),
-            schema=atn_type.get('schemaName'))
+            category=atn_type.get('category'))
         except HTTPError as e:
           if (e.response.status_code == HTTPStatus.CONFLICT):
             logger.warning(f'Annotation type {atn_type.get("name")} already exists. Skipping')
@@ -142,7 +131,6 @@ class ProjectImport:
 
         batch.append({
           'type': annotation.get('typeName'),
-          'schema': annotation.get('schemaName'),
           'value': annotation.get('value'),
           'offsets': annotation.get('offsets'),
           'text_bounds': annotation.get('textBounds'),
@@ -177,7 +165,6 @@ class ProjectImport:
             self.annotation_map.get(str(rln.get('successorId'))).get('id')
           ],
           'type': rln.get('typeName'),
-          'schema': rln.get('schemaName'),
           'value': rln.get('value'),
           'project': self.project.id
         })
@@ -225,17 +212,14 @@ class ProjectImport:
     self.annotations_file = self.__find_file(export_files, '.*\.annotations\.jsonl')
     self.layers_file = self.__find_file(export_files, '.*\.layers\.jsonl')
     self.relations_file = self.__find_file(export_files, '.*\.relations\.jsonl')
-    self.schemas_file = self.__find_file(export_files, '.*\.schemas\.jsonl')
     self.atntypes_file = self.__find_file(export_files, '.*\.atntypes\.jsonl')
 
     if (self.source_file is None):
       raise Exception('Sources missing from export. Ensure to make the export request using includeSources=True.')
     if (self.bounds_file is None):
       raise Exception('Text Bounds missing from export. Ensure to make the export request using includeTextBounds=True.')
-    if (self.schemas_file is None):
-      raise Exception('Schemas missing from export. Ensure to make the export request using includeSchemas=True.')
     if (self.atntypes_file is None):
-      raise Exception('Annotation Types missing from export. Ensure to make the export request using includeSchemas=True.')
+      raise Exception('Annotation Types missing from export. Ensure to make the export request using includeAnnotationTypes=True.')
     if (self.annotations_file is None):
       raise Exception('Annotations missing from export.')
     if (self.layers_file is None):
