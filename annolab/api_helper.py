@@ -56,12 +56,13 @@ class ApiHelper(object):
     return resp
 
 
-  def post_request(self, path: str, body: Dict[str, Any] = None, params: dict = None):
+  def post_request(self, path: str, body: Dict[str, Any] = None, params: dict = None, timeout: float = 30.0):
     resp = requests.post(
       parse.urljoin(self.api_url, path),
       headers=self.__auth_header,
       json=body,
-      params=params
+      params=params,
+      timeout=timeout
     )
 
     self.__handle_non_2xx_response(resp)
@@ -69,12 +70,13 @@ class ApiHelper(object):
     return resp
 
 
-  def put_request(self, path: str, data: Any = None, headers = None, params: dict = None):
+  def put_request(self, path: str, data: Any = None, headers = None, params: dict = None, timeout: float = 30.0):
     resp = requests.put(
       parse.urljoin(self.api_url, path),
       headers=headers,
       data=data,
-      params=params
+      params=params,
+      timeout=timeout
     )
 
     self.__handle_non_2xx_response(resp)
