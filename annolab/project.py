@@ -82,6 +82,7 @@ class Project:
     ocr: bool = False,
     preprocessor: str = 'none',
     timeout: float = 30.0,
+    metadata: dict = None,
     **params: dict):
     """
       Creates a pdf source from a local file, bytes, or filelike object.
@@ -101,6 +102,7 @@ class Project:
         'groupName': self.owner_name,
         'directoryIdentifier': directory or self.default_dir,
         'sourceName': name,
+        'metadata': metadata,
       },
       timeout=timeout
     )
