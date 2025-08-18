@@ -120,9 +120,11 @@ class Project:
       'groupName': self.owner_name,
       'directoryIdentifier': directory or self.default_dir,
       'sourceIdentifier': name,
-      'ocr': ocr,
       'preprocessor': preprocessor
     }
+
+    if (ocr is not None):
+      body['ocr'] = ocr
 
     body.update(params)
 
