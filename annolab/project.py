@@ -83,6 +83,8 @@ class Project:
     preprocessor: str = 'none',
     timeout: float = 30.0,
     metadata: dict = None,
+    abstractId: int = None,
+    workflow: str = None,
     **params: dict):
     """
       Creates a pdf source from a local file, bytes, or filelike object.
@@ -103,6 +105,7 @@ class Project:
         'directoryIdentifier': directory or self.default_dir,
         'sourceName': name,
         'metadata': metadata,
+        'abstractId': abstractId,
       },
       timeout=timeout
     )
@@ -120,7 +123,9 @@ class Project:
       'groupName': self.owner_name,
       'directoryIdentifier': directory or self.default_dir,
       'sourceIdentifier': name,
-      'preprocessor': preprocessor
+      'preprocessor': preprocessor,
+      'workflow': workflow,
+      'abstractId': abstractId,
     }
 
     if (ocr is not None):
