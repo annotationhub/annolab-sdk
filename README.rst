@@ -4,7 +4,7 @@ AnnoLab - The Official Python AnnoLab SDK
 
 |Version|
 
-This is the official python SDK for AnnoLab, the ML platform for NLP projects.
+This is the official python SDK for AnnoLab, the AI-first title production platform for aircraft and land.
 
 `AnnoLab Website <https://annolab.ai>`__
 
