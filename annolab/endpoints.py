@@ -125,6 +125,13 @@ class Abstract:
     return 'v1/abstract/land/instruments/search'
 
 
+class Workflow:
+
+  @staticmethod
+  def get_execution(execution_id: int):
+    return f'v1/workflow/execution/{execution_id}'
+
+
 class ApiKey:
   @staticmethod
   def get_api_key_info():

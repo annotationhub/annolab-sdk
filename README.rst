@@ -108,6 +108,40 @@ Finding an existing land abstract by name.
     abstract = project.find_abstract('Garvin 12-3N-4W')
     print(abstract.id, abstract.name, abstract.tags)
 
+End-to-end land abstract workflow: create an abstract, upload a PDF, wait for processing, then print instruments.
+
+.. code-block:: python
+
+    from annolab import AnnoLab
+
+    lab = AnnoLab(api_key='YOUR_API_KEY')
+
+    project = lab.find_project('My Land Project')
+
+    abstract = project.create_abstract(
+      name='Garvin 12-3N-4W',
+      aois=[{
+        'state': 'OK',
+        'county': 'Garvin',
+        'section': '12',
+        'township': '3N',
+        'range': '4W'
+      }],
+      subdivisions=['NW/4']
+    )
+
+    pending_source, execution = abstract.upload_file(
+      file='/path/to/deed.pdf',
+      workflow='land_title'
+    )
+
+    if execution:
+      execution.wait_until_complete()
+      print(execution.status)
+
+    abstract.populate_instruments()
+    print(abstract.instruments)
+
 Creating a new text source. Will be added to the "Uploads" directory by default.
 
 .. code-block:: python

@@ -1,7 +1,9 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
+import io
 
 from annolab import endpoints
 from annolab.api_helper import ApiHelper
+from annolab.workflow_execution import WorkflowExecution
 
 
 class LandAbstract:
@@ -74,6 +76,50 @@ class LandAbstract:
 
     self.instruments = instruments
     return self
+
+
+  def upload_file(
+    self,
+    file: Union[str, io.IOBase, bytes],
+    name: str = None,
+    directory: str = None,
+    ocr: bool = True,
+    preprocessor: str = 'none',
+    timeout: float = 30.0,
+    metadata: dict = None,
+    workflow: str = None,
+    **params: dict
+  ):
+    """
+      Upload a PDF to this abstract using the project's create_pdf_source flow.
+
+      Returns (pending_source, workflow_execution). workflow_execution is None
+      when the upload did not start a workflow.
+    """
+    if self.project is None:
+      raise Exception('This LandAbstract is not connected to a project')
+
+    create_json = self.project.create_pdf_source(
+      file=file,
+      name=name,
+      directory=directory,
+      ocr=ocr,
+      preprocessor=preprocessor,
+      timeout=timeout,
+      metadata=metadata,
+      abstractId=self.id,
+      workflow=workflow,
+      **params
+    )
+
+    pending_source = create_json.get('pendingSource')
+    execution = None
+    execution_id = create_json.get('executionId')
+
+    if execution_id:
+      execution = WorkflowExecution.get(self.__api, execution_id)
+
+    return pending_source, execution
 
 
   @staticmethod
