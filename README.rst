@@ -69,6 +69,45 @@ Getting an existing project.
     # OR
     lab.find_project(name='My New Project', owner_name='AnnoLab')
 
+Creating a land abstract. AOIs are the target land models use when examining documents.
+
+.. code-block:: python
+
+    project = lab.find_project('My Land Project')
+    abstract = project.create_abstract(
+      name='Garvin 12-3N-4W',
+      aois=[{
+        'state': 'OK',
+        'county': 'Garvin',
+        'section': '12',
+        'township': '3N',
+        'range': '4W'
+      }],
+      subdivisions=['NW/4']
+    )
+
+    # Texas AOIs use block, abstract, and survey instead of range
+    abstract = project.create_abstract(
+      name='Midland 18-37',
+      aois=[{
+        'state': 'TX',
+        'county': 'Midland',
+        'section': '18',
+        'block': '37',
+        'township': 'T1S',
+        'abstract': 'A-123',
+        'survey': 'T&P RR Co'
+      }]
+    )
+
+Finding an existing land abstract by name.
+
+.. code-block:: python
+
+    project = lab.find_project('My Land Project')
+    abstract = project.find_abstract('Garvin 12-3N-4W')
+    print(abstract.id, abstract.name, abstract.tags)
+
 Creating a new text source. Will be added to the "Uploads" directory by default.
 
 .. code-block:: python

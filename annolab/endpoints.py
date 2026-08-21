@@ -108,6 +108,18 @@ class Source:
     return f'v1/source/{id}'
 
 
+class Abstract:
+
+  @staticmethod
+  def post_create():
+    return 'v1/abstract/create'
+
+
+  @staticmethod
+  def post_search():
+    return 'v1/abstract/search'
+
+
 class ApiKey:
   @staticmethod
   def get_api_key_info():

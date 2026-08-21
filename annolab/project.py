@@ -9,6 +9,7 @@ from annolab.annotation import Annotation
 from annolab.annotation_relation import AnnotationRelation
 from annolab.project_import import ProjectImport
 from annolab.project_export import ProjectExport
+from annolab.land_abstract import LandAbstract
 
 class Project:
 
@@ -49,6 +50,69 @@ class Project:
     )
 
     return res.json()
+
+
+  def create_abstract(
+    self,
+    name: str,
+    aois: List[dict],
+    subdivisions: List[str] = None,
+  ):
+    """
+      Create a land abstract in this project.
+
+      AOI parameters:
+        county:     str  (Required)
+        state:      str  (Required, two-letter US abbreviation)
+        section:    str  (Optional)
+        township:   str  (Optional)
+        range:      str  (Optional, non-Texas)
+        block:      str  (Optional, Texas)
+        abstract:   str  (Optional, Texas)
+        survey:     str  (Optional, Texas)
+    """
+    body = {
+      'projectIdentifier': self.id or self.name,
+      'groupName': self.owner_name,
+      'name': name,
+      'aois': aois,
+    }
+
+    if (subdivisions is not None):
+      body['subdivisions'] = subdivisions
+
+    res = self.__api.post_request(
+      endpoints.Abstract.post_create(),
+      body
+    )
+
+    return LandAbstract.create_from_response_json(
+      res.json(),
+      self.__api,
+      project=self,
+      name=name,
+    )
+
+
+  def find_abstract(self, name: str):
+    """
+      Find a land abstract in this project by name.
+    """
+    res = self.__api.post_request(
+      endpoints.Abstract.post_search(),
+      {
+        'projectIdentifier': self.id or self.name,
+        'groupName': self.owner_name,
+        'name': name,
+      }
+    )
+
+    return LandAbstract.create_from_response_json(
+      res.json(),
+      self.__api,
+      project=self,
+      name=name,
+    )
 
 
   def create_text_source(self, name: str, text: str, directory: str = None):
