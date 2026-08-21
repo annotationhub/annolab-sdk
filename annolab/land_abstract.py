@@ -4,6 +4,7 @@ import io
 from annolab import endpoints
 from annolab.api_helper import ApiHelper
 from annolab.workflow_execution import WorkflowExecution
+from annolab.project import Project
 
 
 class LandAbstract:
@@ -24,7 +25,7 @@ class LandAbstract:
     created_by: Optional[Dict[str, Any]],
     updated_by: Optional[Dict[str, Any]],
     api_helper: ApiHelper = None,
-    project: Any = None,
+    project: Project = None,
   ):
     self.id = id
     self.name = name
