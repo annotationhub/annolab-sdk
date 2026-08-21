@@ -1,5 +1,6 @@
 from typing import Any, Dict, List, Optional
 
+from annolab import endpoints
 from annolab.api_helper import ApiHelper
 
 
@@ -35,6 +36,44 @@ class LandAbstract:
     self.updated_by = updated_by
     self.project = project
     self.__api = api_helper
+
+
+  def populate_instruments(self, timeout: float = 120.0):
+    """
+      Page through the land instrument search API and store every instrument
+      on this abstract.
+    """
+    if self.__api is None:
+      raise Exception('This LandAbstract is not connected to the API')
+
+    body = {
+      'projectIdentifier': self.project.id if self.project is not None else self.project_id,
+      'abstractIdentifier': self.id,
+    }
+
+    if self.project is not None:
+      body['groupName'] = self.project.owner_name
+
+    instruments = []
+    page = 1
+
+    while True:
+      body['page'] = page
+      res = self.__api.post_request(
+        endpoints.Abstract.post_search_land_instruments(),
+        body,
+        timeout=timeout
+      )
+      data = res.json()
+      instruments.extend(data.get('results') or [])
+
+      if not data.get('hasMorePages'):
+        break
+
+      page = (data.get('page') or page) + 1
+
+    self.instruments = instruments
+    return self
 
 
   @staticmethod

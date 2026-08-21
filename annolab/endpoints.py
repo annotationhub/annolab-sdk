@@ -120,6 +120,11 @@ class Abstract:
     return 'v1/abstract/search'
 
 
+  @staticmethod
+  def post_search_land_instruments():
+    return 'v1/abstract/land/instruments/search'
+
+
 class ApiKey:
   @staticmethod
   def get_api_key_info():
