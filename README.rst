@@ -151,6 +151,17 @@ See `Land Instrument <https://docs.annolab.ai/annotations-and-relations/land-ins
     abstract.populate_instruments()
     print(abstract.instruments)
 
+
+Fetching an Abstract's instruments and conveyance data
+--------
+
+.. code-block:: python
+
+    project = lab.find_project('My Land Project')
+    abstract = project.find_abstract('Garvin 12-3N-4W')
+    abstract.populate_instruments()
+    print(abstract.instruments)
+
 Creating a new text source. 
 --------
 
