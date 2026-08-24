@@ -109,6 +109,7 @@ Finding an existing land abstract by name.
     print(abstract.id, abstract.name, abstract.tags)
 
 End-to-end land abstract workflow: create an abstract, upload a PDF, wait for processing, then print instruments.
+--------
 
 .. code-block:: python
 
