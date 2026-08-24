@@ -83,7 +83,7 @@ Creating a land abstract. AOIs are the target land models use when examining doc
         'township': '3N',
         'range': '4W'
       }],
-      subdivisions=['NW/4']
+      subdivisions=['Green Acres']
     )
 
     # Texas AOIs use block, abstract, and survey instead of range
@@ -95,7 +95,7 @@ Creating a land abstract. AOIs are the target land models use when examining doc
         'section': '18',
         'block': '37',
         'township': 'T1S',
-        'abstract': 'A-123',
+        'abstract': '123',
         'survey': 'T&P RR Co'
       }]
     )
@@ -127,7 +127,7 @@ End-to-end land abstract workflow: create an abstract, upload a PDF, wait for pr
         'township': '3N',
         'range': '4W'
       }],
-      subdivisions=['NW/4']
+      subdivisions=['Green Acres']
     )
 
     pending_source, execution = abstract.upload_file(
