@@ -1,4 +1,5 @@
 from typing import Dict, Any
+import os
 import requests
 from urllib import parse
 import logging
@@ -8,6 +9,19 @@ import annolab
 from annolab import endpoints
 from annolab.util.cached_property import cached_property
 
+API_KEY_ENV_VAR = 'ANNOLAB_API_KEY'
+
+
+def resolve_api_key(api_key: str = None) -> str:
+  """
+    Resolve the api key to use, in order of precedence:
+      1. An explicitly passed api_key
+      2. The module-level annolab.api_key
+      3. The ANNOLAB_API_KEY environment variable
+  """
+  return api_key or annolab.api_key or os.environ.get(API_KEY_ENV_VAR)
+
+
 class ApiHelper(object):
 
   def __init__(
@@ -16,7 +30,7 @@ class ApiHelper(object):
     api_url = 'https://api.annolab.ai',
   ):
     self.api_url = api_url
-    self.api_key = api_key or annolab.api_key
+    self.api_key = resolve_api_key(api_key)
 
 
   @property
