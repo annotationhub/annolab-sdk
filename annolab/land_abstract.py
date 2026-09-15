@@ -1,10 +1,14 @@
-from typing import Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 import io
 
 from annolab import endpoints
 from annolab.api_helper import ApiHelper
-from annolab.workflow_execution import WorkflowExecution
-from annolab.project import Project
+from annolab.upload_result import UploadResult
+
+if TYPE_CHECKING:
+  # Imported for type hints only. annolab.project imports this module, so a
+  # runtime import here would be circular.
+  from annolab.project import Project
 
 
 class LandAbstract:
@@ -25,7 +29,7 @@ class LandAbstract:
     created_by: Optional[Dict[str, Any]],
     updated_by: Optional[Dict[str, Any]],
     api_helper: ApiHelper = None,
-    project: Project = None,
+    project: 'Project' = None,
   ):
     self.id = id
     self.name = name
@@ -90,12 +94,21 @@ class LandAbstract:
     metadata: dict = None,
     workflow: str = None,
     **params: dict
-  ):
+  ) -> UploadResult:
     """
       Upload a PDF to this abstract using the project's create_pdf_source flow.
 
-      Returns (pending_source, workflow_execution). workflow_execution is None
-      when the upload did not start a workflow.
+      ocr defaults to True (the same default as Project.create_pdf_source).
+      Pass ocr=False to skip OCR and extract the pdf's embedded text instead.
+
+      Returns an UploadResult with:
+        .pending_source  dict  The created pending source.
+        .execution       Optional[WorkflowExecution]  The started workflow
+                         execution, or None when no workflow was started.
+        .wait_until_complete()  Waits on .execution (no-op when None).
+
+      The result also unpacks as (pending_source, execution) for backwards
+      compatibility.
     """
     if self.project is None:
       raise Exception('This LandAbstract is not connected to a project')
@@ -113,14 +126,7 @@ class LandAbstract:
       **params
     )
 
-    pending_source = create_json.get('pendingSource')
-    execution = None
-    execution_id = create_json.get('executionId')
-
-    if execution_id:
-      execution = WorkflowExecution.get(self.__api, execution_id)
-
-    return pending_source, execution
+    return UploadResult.create_from_response_json(create_json, self.__api)
 
 
   @staticmethod

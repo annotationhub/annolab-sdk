@@ -143,7 +143,7 @@ class Project:
     file: Union[str, io.IOBase, bytes], 
     name: str = None,
     directory: str = None,
-    ocr: bool = False,
+    ocr: bool = True,
     preprocessor: str = 'none',
     timeout: float = 30.0,
     metadata: dict = None,
@@ -153,7 +153,10 @@ class Project:
     """
       Creates a pdf source from a local file, bytes, or filelike object.
       If directory is not provided, the default directory is used (typically "Uploads").
-      Will OCR using your account preferred OCR if ocr parameter is set to True (Org only)
+
+      ocr defaults to True and runs your account's preferred OCR on the pdf (Org only).
+      Pass ocr=False to skip OCR and extract the pdf's embedded text instead.
+      This default is shared with LandAbstract.upload_file, which delegates here.
     """
     is_io_or_bytes = isinstance(file, io.IOBase) or isinstance(file, bytes)
     if (is_io_or_bytes and name is None):

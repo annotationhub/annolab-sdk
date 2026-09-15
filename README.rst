@@ -30,13 +30,13 @@ Using the AnnoLab SDK
 To get started, ensure you have an annolab account at `<https://app.annolab.ai/signup>`__ and have created an API Key.
 Instructions for creating an API Key may be found at `<https://docs.annolab.ai/>`__.
 
-Configure the sdk with your api key using one of the following two methods.
+Configure the sdk with your api key using one of the following three methods.
 
 1. Create an instance of the SDK passing your api_key.
 
 .. code-block:: python
 
-    >>> from annolab import Annolab
+    >>> from annolab import AnnoLab
     >>> lab = AnnoLab(api_key='YOUR_API_KEY')
 
 2. Or set a global api key. All subsequent uses of the sdk will use this global key for authentication.
@@ -44,9 +44,20 @@ Configure the sdk with your api key using one of the following two methods.
 .. code-block:: python
 
     >>> import annolab
-    >>> from annolab import Annolab
+    >>> from annolab import AnnoLab
     >>>
     >>> annolab.api_key = 'YOUR_API_KEY'
+    >>> lab = AnnoLab()
+
+3. Or set the ``ANNOLAB_API_KEY`` environment variable. The sdk falls back to it when no key is passed or set globally.
+
+.. code-block:: sh
+
+    $ export ANNOLAB_API_KEY='YOUR_API_KEY'
+
+.. code-block:: python
+
+    >>> from annolab import AnnoLab
     >>> lab = AnnoLab()
 
 
@@ -139,14 +150,18 @@ See `Land Instrument <https://docs.annolab.ai/annotations-and-relations/land-ins
       subdivisions=['Green Acres']
     )
 
-    pending_source, execution = abstract.upload_file(
+    # OCR runs by default (the same default as project.create_pdf_source).
+    # Pass ocr=False to extract the pdf's embedded text instead.
+    result = abstract.upload_file(
       file='/path/to/deed.pdf',
       workflow='land_title'
     )
 
-    if execution:
-      execution.wait_until_complete()
-      print(execution.status)
+    # result.execution is None when the upload did not start a workflow.
+    # wait_until_complete() is a no-op in that case.
+    result.wait_until_complete()
+    if result.execution:
+      print(result.execution.status)
 
     abstract.populate_instruments()
     print(abstract.instruments)
@@ -185,9 +200,12 @@ Will be added to the "Uploads" directory by default.
 
 .. code-block:: python
 
-    project = annolab.find_project('My New Project')
+    project = lab.find_project('My New Project')
     project.create_pdf_source(file='/path/to/file')
     project.create_pdf_source(file='/path/to/file', name='custom_name.pdf', directory='Uploads')
+
+    # Skip OCR and extract the pdf's embedded text instead
+    project.create_pdf_source(file='/path/to/file', ocr=False)
 
     # You may also pass a filelike object or bytes. "name" is required when doing so.
     project.create_pdf_source(file=open('myfile.pdf', 'r+b'), name='myfile.pdf')
@@ -197,7 +215,7 @@ Creating a new pdf source from a web source.
 
 .. code-block:: python
 
-    project = annolab.find_project('My New Project')
+    project = lab.find_project('My New Project')
     project.create_pdf_source_from_web(url='https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', name='mypdf.pdf')
 
 Adding annotations.
