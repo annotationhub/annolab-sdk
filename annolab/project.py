@@ -10,6 +10,7 @@ from annolab.annotation_relation import AnnotationRelation
 from annolab.project_import import ProjectImport
 from annolab.project_export import ProjectExport
 from annolab.land_abstract import LandAbstract
+from annolab.upload_result import UploadResult
 
 class Project:
 
@@ -206,7 +207,7 @@ class Project:
       timeout=timeout
     )
 
-    return create_res.json()
+    return UploadResult.create_from_response_json(create_res.json(), self.__api)
 
 
   def create_pdf_source_from_web(self, url: str, name: str = None, directory: str = None, **params: dict):

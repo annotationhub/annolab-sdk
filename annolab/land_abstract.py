@@ -113,7 +113,7 @@ class LandAbstract:
     if self.project is None:
       raise Exception('This LandAbstract is not connected to a project')
 
-    create_json = self.project.create_pdf_source(
+    return self.project.create_pdf_source(
       file=file,
       name=name,
       directory=directory,
@@ -125,8 +125,6 @@ class LandAbstract:
       workflow=workflow,
       **params
     )
-
-    return UploadResult.create_from_response_json(create_json, self.__api)
 
 
   @staticmethod
