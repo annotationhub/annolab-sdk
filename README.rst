@@ -65,7 +65,7 @@ Usage Examples
 ##############
 
 Creating a project.
---------
+~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -74,7 +74,7 @@ Creating a project.
     lab.create_project(name='My New Project', owner_name='AnnoLab')
 
 Getting an existing project.
---------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -82,8 +82,10 @@ Getting an existing project.
     # OR
     lab.find_project(name='My New Project', owner_name='AnnoLab')
 
-Creating a land abstract. AOIs are used by Land AI to limit direct conveyance extractions.
---------
+Creating a land abstract.
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+AOIs are used by Land AI to limit direct conveyance extractions.
 
 .. code-block:: python
 
@@ -115,7 +117,7 @@ Creating a land abstract. AOIs are used by Land AI to limit direct conveyance ex
     )
 
 Finding an existing land abstract by name.
---------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -123,8 +125,8 @@ Finding an existing land abstract by name.
     abstract = project.find_abstract('Garvin 12-3N-4W')
     print(abstract.id, abstract.name, abstract.tags)
 
-End-to-end land abstract workflow: 
---------
+End-to-end land abstract workflow.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Create an abstract, upload a PDF, wait for processing, then print instruments.
 
@@ -167,8 +169,8 @@ See `Land Instrument <https://docs.annolab.ai/annotations-and-relations/land-ins
     print(abstract.instruments)
 
 
-Fetching an Abstract's instruments and conveyance data
---------
+Fetching an abstract's instruments and conveyance data.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -177,8 +179,8 @@ Fetching an Abstract's instruments and conveyance data
     abstract.populate_instruments()
     print(abstract.instruments)
 
-Creating a new text source. 
---------
+Creating a new text source.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Will be added to the "Uploads" directory by default.
 
@@ -193,8 +195,8 @@ Will be added to the "Uploads" directory by default.
       directory='Uploads'
     )
 
-Creating a new pdf source from a file. 
---------
+Creating a new pdf source from a file.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Will be added to the "Uploads" directory by default.
 
@@ -211,7 +213,7 @@ Will be added to the "Uploads" directory by default.
     project.create_pdf_source(file=open('myfile.pdf', 'r+b'), name='myfile.pdf')
 
 Creating a new pdf source from a web source.
---------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -219,7 +221,7 @@ Creating a new pdf source from a web source.
     project.create_pdf_source_from_web(url='https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', name='mypdf.pdf')
 
 Adding annotations.
---------
+~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -232,7 +234,7 @@ Adding annotations.
   )
 
 Adding annotations with relations.
---------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
