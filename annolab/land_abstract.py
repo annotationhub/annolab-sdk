@@ -128,14 +128,17 @@ class LandAbstract:
     )
 
 
-  def get_upload_status(self) -> AbstractUploadStatus:
+  def get_upload_status(self, detail: str = 'summary') -> AbstractUploadStatus:
     """
       Return the consolidated upload / workflow status for this abstract.
+
+      detail is "summary" (default) or "full". Full includes each source's
+      id, name, and workflow status.
     """
     if self.__api is None:
       raise Exception('This LandAbstract is not connected to the API')
 
-    return AbstractUploadStatus.get(self.__api, self.id)
+    return AbstractUploadStatus.get(self.__api, self.id, detail=detail)
 
 
   @staticmethod

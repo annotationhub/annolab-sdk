@@ -6,5 +6,5 @@ from annolab.annolab import AnnoLab
 from annolab.project import Project
 from annolab.land_abstract import LandAbstract
 from annolab.workflow_execution import WorkflowExecution, WorkflowExecutionTask
-from annolab.abstract_upload_status import AbstractUploadStatus
+from annolab.abstract_upload_status import AbstractUploadStatus, AbstractUploadSource
 from annolab.upload_result import UploadResult

@@ -62,7 +62,8 @@ class ApiHelper(object):
     resp = requests.get(
       parse.urljoin(self.api_url, path),
       headers=self.__auth_header,
-      json=body
+      json=body,
+      params=params
     )
 
     self.__handle_non_2xx_response(resp)
