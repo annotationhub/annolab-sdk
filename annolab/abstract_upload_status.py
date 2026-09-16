@@ -6,12 +6,6 @@ from annolab import endpoints
 from annolab.api_helper import ApiHelper
 
 
-TERMINAL_UPLOAD_STATUSES = {
-  'READY',
-  'ERRORED',
-}
-
-
 class AbstractUploadSource:
   """
   A single document in a full abstract upload status payload.
@@ -60,11 +54,13 @@ class AbstractUploadStatus:
     counts: Optional[Dict[str, int]] = None,
     blockers: Optional[Dict[Any, Dict[str, Any]]] = None,
     sources: Optional[List[AbstractUploadSource]] = None,
+    is_terminal: bool = False,
     detail: str = 'summary',
     api_helper: ApiHelper = None,
   ):
     self.abstract_id = abstract_id
     self.status = status
+    self.is_terminal = is_terminal
     self.counts = counts or {
       'sources': 0,
       'ready': 0,
@@ -78,17 +74,17 @@ class AbstractUploadStatus:
 
 
   @property
-  def ready(self) -> int:
+  def ready_count(self) -> int:
     return self.counts.get('ready', 0)
 
 
   @property
-  def running(self) -> int:
+  def running_count(self) -> int:
     return self.counts.get('running', 0)
 
 
   @property
-  def failed(self) -> int:
+  def failed_count(self) -> int:
     return self.counts.get('failed', 0)
 
 
@@ -104,6 +100,7 @@ class AbstractUploadStatus:
     return AbstractUploadStatus(
       abstract_id=resp_json['abstractId'],
       status=resp_json.get('status'),
+      is_terminal=bool(resp_json.get('isTerminal')),
       counts=resp_json.get('counts') or {},
       blockers=_parse_blockers(resp_json.get('blockers') or {}),
       sources=sources,
@@ -140,6 +137,7 @@ class AbstractUploadStatus:
     )
 
     self.status = refreshed.status
+    self.is_terminal = refreshed.is_terminal
     self.counts = refreshed.counts
     self.blockers = refreshed.blockers
     self.sources = refreshed.sources
@@ -149,8 +147,8 @@ class AbstractUploadStatus:
 
   def wait_until_complete(self, timeout: float = 3600, poll_rate: float = None):
     """
-      Poll the abstract upload status until it reaches a terminal status:
-      READY or ERRORED.
+      Poll the abstract upload status until is_terminal is true: no workflows
+      are running and every workflow has reached a terminal state.
 
       poll_rate is the number of seconds between status checks. It defaults
       to 15 seconds and cannot be less than 5 seconds.
@@ -159,9 +157,9 @@ class AbstractUploadStatus:
 
     self.refresh_status()
 
-    if self.status not in TERMINAL_UPLOAD_STATUSES:
+    if not self.is_terminal:
       poll(
-        lambda: self.refresh_status() in TERMINAL_UPLOAD_STATUSES,
+        self._reached_terminal,
         step=step,
         timeout=timeout
       )
@@ -169,10 +167,16 @@ class AbstractUploadStatus:
     return self
 
 
+  def _reached_terminal(self):
+    self.refresh_status()
+    return self.is_terminal
+
+
   def __repr__(self):
     return (
       f'AbstractUploadStatus(abstract_id={self.abstract_id!r}, status={self.status!r}, '
-      f'counts={self.counts!r}, blockers={self.blockers!r}, sources={self.sources!r})'
+      f'is_terminal={self.is_terminal!r}, counts={self.counts!r}, '
+      f'blockers={self.blockers!r}, sources={self.sources!r})'
     )
 
 
