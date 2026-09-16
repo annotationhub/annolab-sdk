@@ -125,6 +125,11 @@ class Abstract:
     return 'v1/abstract/land/instruments/search'
 
 
+  @staticmethod
+  def get_runsheet_status(abstract_id: int):
+    return f'v1/abstract/runsheet-status/{abstract_id}'
+
+
 class Workflow:
 
   @staticmethod

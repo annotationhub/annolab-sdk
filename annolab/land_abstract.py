@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 import io
 
 from annolab import endpoints
+from annolab.abstract_upload_status import AbstractUploadStatus
 from annolab.api_helper import ApiHelper
 from annolab.upload_result import UploadResult
 
@@ -125,6 +126,16 @@ class LandAbstract:
       workflow=workflow,
       **params
     )
+
+
+  def get_upload_status(self) -> AbstractUploadStatus:
+    """
+      Return the consolidated upload / workflow status for this abstract.
+    """
+    if self.__api is None:
+      raise Exception('This LandAbstract is not connected to the API')
+
+    return AbstractUploadStatus.get(self.__api, self.id)
 
 
   @staticmethod
